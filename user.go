@@ -10,8 +10,9 @@ type user struct {
 	Nickname    string `json:"nickname"`
 	URL         string `json:"url,omitempty"`
 	IsValidated bool
+	IsAdmin     bool
 }
 
-func (u *user) initUrl() {
+func (u *user) initURL() {
 	u.URL = fmt.Sprintf("/users/%d", u.ID)
 }

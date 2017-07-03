@@ -9,6 +9,8 @@ import (
 
 var connString string
 
+var secretSalt = "secret salt"
+
 func mock(arg http.ResponseWriter, arg2 *http.Request) {
 
 }

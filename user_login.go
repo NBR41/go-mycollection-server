@@ -2,9 +2,6 @@ package main
 
 import (
 	"net/http"
-
-	"github.com/SermoDigital/jose/crypto"
-	"github.com/SermoDigital/jose/jws"
 )
 
 func authenticateUser(w http.ResponseWriter, r *http.Request) {
@@ -50,13 +47,12 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims := jws.Claims{}
-	jwt := jws.NewJWT(claims, crypto.SigningMethodHS256)
-	tok, err := jwt.Serialize([]byte("secret salt"))
+	tok, err := getToken(u)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
 	}
+
 	writeResponse(w, r, struct {
 		Token string `json:"token"`
 	}{string(tok)})

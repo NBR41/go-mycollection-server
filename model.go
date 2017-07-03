@@ -21,12 +21,11 @@ func (m *model) Close() error {
 	return m.db.Close()
 }
 
-func (m *model) GetUserByEmail(email string) (*user, error) {
+func (m *model) getUser(query string, params ...interface{}) (*user, error) {
 	var u = user{}
-	err := m.db.QueryRow(
-		`SELECT id, nickname, email, activated FROM users WHERE email = ?`,
-		email,
-	).Scan(&u.ID, u.Nickname, u.Email, u.IsValidated)
+	err := m.db.QueryRow(query, params...).Scan(
+		&u.ID, &u.Nickname, &u.Email, &u.IsValidated, &u.IsAdmin,
+	)
 
 	if err != nil {
 		return nil, err
@@ -34,20 +33,21 @@ func (m *model) GetUserByEmail(email string) (*user, error) {
 	return &u, nil
 }
 
-func (m *model) GetAuthenticatedUser(password, email, nickname string) (*user, error) {
-	var u = user{}
-	err := m.db.QueryRow(
-		`
-SELECT id, nickname, email, activated
-FROM users
-WHERE password = ? AND (email = ? OR nickname =?)`,
-		password, email, nickname,
-	).Scan(&u.ID, u.Nickname, u.Email, u.IsValidated)
+func (m *model) GetUserByEmail(email string) (*user, error) {
+	return m.getUser(
+		`SELECT id, nickname, email, activated, admin FROM users WHERE email = ?`,
+		email,
+	)
+}
 
-	if err != nil {
-		return nil, err
-	}
-	return &u, nil
+func (m *model) GetAuthenticatedUser(password, email, nickname string) (*user, error) {
+	return m.getUser(
+		`
+	SELECT id, nickname, email, activated, admin
+	FROM users
+	WHERE password = ? AND (email = ? OR nickname =?)`,
+		password, email, nickname,
+	)
 }
 
 func (m *model) InsertUser(nickname, email, password string) (*user, error) {

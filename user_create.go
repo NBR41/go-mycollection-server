@@ -48,6 +48,6 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
 	}
-	u.initUrl()
+	u.initURL()
 	writeResponse(w, r, u)
 }
