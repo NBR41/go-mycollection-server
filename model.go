@@ -17,10 +17,30 @@ func newModel(connString string) (*model, error) {
 	return &model{db: db}, nil
 }
 
-func (m *model) Close() error {
+func (m *model) close() error {
 	return m.db.Close()
 }
+func (m *model) getUserList() ([]user, error) {
+	rows, err := m.db.Query(`SELECT id, nickname, email, activated, admin FROM users`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var l = []user{}
+	for rows.Next() {
+		u := user{}
+		if err := rows.Scan(&u.ID, &u.Nickname, &u.Email, &u.IsValidated, &u.IsAdmin); err != nil {
+			return nil, err
+		}
+		l = append(l, u)
 
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return l, nil
+}
 func (m *model) getUser(query string, params ...interface{}) (*user, error) {
 	var u = user{}
 	err := m.db.QueryRow(query, params...).Scan(
@@ -33,14 +53,18 @@ func (m *model) getUser(query string, params ...interface{}) (*user, error) {
 	return &u, nil
 }
 
-func (m *model) GetUserByEmail(email string) (*user, error) {
+func (m *model) getUserByID(id int64) (*user, error) {
+	return m.getUser(`SELECT id, nickname, email, activated, admin FROM users WHERE id = ?`, id)
+}
+
+func (m *model) getUserByEmailOrNickname(email, nickname string) (*user, error) {
 	return m.getUser(
-		`SELECT id, nickname, email, activated, admin FROM users WHERE email = ?`,
-		email,
+		`SELECT id, nickname, email, activated, admin FROM users WHERE email = ? OR nickname = ?`,
+		email, nickname,
 	)
 }
 
-func (m *model) GetAuthenticatedUser(password, email, nickname string) (*user, error) {
+func (m *model) getAuthenticatedUser(password, email, nickname string) (*user, error) {
 	return m.getUser(
 		`
 	SELECT id, nickname, email, activated, admin
@@ -50,7 +74,7 @@ func (m *model) GetAuthenticatedUser(password, email, nickname string) (*user, e
 	)
 }
 
-func (m *model) InsertUser(nickname, email, password string) (*user, error) {
+func (m *model) insertUser(nickname, email, password string) (*user, error) {
 	res, err := m.db.Exec(
 		`
 INSERT INTO users (id, nickname, email, password, activated, ts_create, ts_update)
@@ -69,7 +93,7 @@ ON DUPLICATE KEY UPDATE ts_update = VALUES(ts_update)`,
 	return &user{ID: id, Email: email, Nickname: nickname}, err
 }
 
-func (m *model) UpdateUserNickname(id int64, nickname string) error {
+func (m *model) updateUserNickname(id int64, nickname string) error {
 	_, err := m.db.Exec(
 		`UPDATE users set nickname = ?, ts_update = NOW() where id = ?`,
 		nickname, id,
@@ -77,7 +101,7 @@ func (m *model) UpdateUserNickname(id int64, nickname string) error {
 	return err
 }
 
-func (m *model) UpdateUserPassword(id int64, password string) error {
+func (m *model) updateUserPassword(id int64, password string) error {
 	_, err := m.db.Exec(
 		`UPDATE users set password = ?, ts_update = NOW() where id = ?`,
 		password, id,
@@ -85,7 +109,7 @@ func (m *model) UpdateUserPassword(id int64, password string) error {
 	return err
 }
 
-func (m *model) UpdateUserActivation(id int64, activated bool) error {
+func (m *model) updateUserActivation(id int64, activated bool) error {
 	_, err := m.db.Exec(
 		`UPDATE users set activated = ?, ts_update = NOW() where id = ?`,
 		activated, id,
@@ -93,7 +117,66 @@ func (m *model) UpdateUserActivation(id int64, activated bool) error {
 	return err
 }
 
-func (m *model) DeleteUser(id int64) error {
+func (m *model) deleteUser(id int64) error {
 	_, err := m.db.Exec(`DELETE FROM users where id = ?`, id)
+	return err
+}
+
+func (m *model) insertBook(name string) (*book, error) {
+	res, err := m.db.Exec(
+		`
+INSERT INTO books (id, name, ts_create, ts_update)
+VALUES (null, ?, NOW(), NOW())
+ON DUPLICATE KEY UPDATE ts_update = VALUES(ts_update)`,
+		name,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var id int64
+	id, err = res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return &book{ID: id, Name: name}, err
+}
+
+func (m *model) UpdateBook(id int64, name string) error {
+	_, err := m.db.Exec(
+		`UPDATE books set name = ?, ts_update = NOW() where id = ?`,
+		name, id,
+	)
+	return err
+}
+
+func (m *model) deleteBook(id int64) error {
+	_, err := m.db.Exec(`DELETE FROM books where id = ?`, id)
+	return err
+}
+
+func (m *model) insertUserBook(userID, bookID int64) (*userBook, error) {
+	_, err := m.db.Exec(
+		`
+INSERT INTO users_books (user_id, book_id, ts_create, ts_update)
+VALUES (?, ?, NOW(), NOW())
+ON DUPLICATE KEY UPDATE ts_update = VALUES(ts_update)`,
+		userID, bookID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &userBook{UserID: userID, BookID: bookID}, err
+}
+
+func (m *model) updateUserBook(userID, bookID int64) error {
+	_, err := m.db.Exec(
+		`UPDATE users_books set ts_update = NOW() where user_id = ? and book_id = ?`,
+		userID, bookID,
+	)
+	return err
+}
+
+func (m *model) deleteUserBook(userID, bookID int64) error {
+	_, err := m.db.Exec(`DELETE FROM users_books where user_id = ? and book_id = ?`, userID, bookID)
 	return err
 }

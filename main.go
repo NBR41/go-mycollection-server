@@ -9,11 +9,17 @@ import (
 
 var connString string
 
-var secretSalt = "secret salt"
+const (
+	secretSalt = "secret salt"
 
-func mock(arg http.ResponseWriter, arg2 *http.Request) {
+	formEmailField    = "email"
+	formPasswordField = "password"
+	formNicknameField = "nickname"
 
-}
+	urlUserIDField = "user_id"
+	urlBookIDField = "book_id"
+)
+
 func init() {
 	connString := os.Getenv("DB_CONN_STR")
 	if connString == "" {

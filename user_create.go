@@ -5,22 +5,16 @@ import (
 )
 
 func createUser(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		writeError(w, r, http.StatusBadRequest)
-		return
-	}
-
 	var email, password, nickname string
-	if email = r.PostForm.Get("email"); email == "" {
+	if email = r.PostForm.Get(formEmailField); email == "" {
 		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid email")
 		return
 	}
-	if password = r.PostForm.Get("password"); password == "" {
+	if password = r.PostForm.Get(formPasswordField); password == "" {
 		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid password")
 		return
 	}
-	if nickname = r.PostForm.Get("nickname"); nickname == "" {
+	if nickname = r.PostForm.Get(formNicknameField); nickname == "" {
 		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid nickname")
 		return
 	}
@@ -30,9 +24,9 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusInternalServerError)
 		return
 	}
-	defer func() { _ = m.Close() }()
+	defer func() { _ = m.close() }()
 
-	u, err := m.GetUserByEmail(email)
+	u, err := m.getUserByEmailOrNickname(email, nickname)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
@@ -43,7 +37,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err = m.InsertUser(nickname, email, password)
+	u, err = m.insertUser(nickname, email, password)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return

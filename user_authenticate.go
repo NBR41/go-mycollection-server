@@ -5,23 +5,15 @@ import (
 )
 
 func authenticateUser(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		writeError(w, r, http.StatusBadRequest)
-		return
-	}
-
 	var password, email, nickname string
-	if password = r.PostForm.Get("password"); password == "" {
-		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid password")
+	if password = r.PostForm.Get(formPasswordField); password == "" {
+		writeErrorWithMessage(w, r, http.StatusBadRequest, "missing password")
 		return
 	}
-	if email = r.PostForm.Get("email"); email == "" {
-		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid email")
-		return
-	}
-	if nickname = r.PostForm.Get("nickname"); nickname == "" {
-		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid nickname")
+	email = r.PostForm.Get(formEmailField)
+	nickname = r.PostForm.Get(formNicknameField)
+	if email == "" && nickname == "" {
+		writeErrorWithMessage(w, r, http.StatusBadRequest, "missing email or nickname")
 		return
 	}
 
@@ -31,7 +23,7 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := m.GetAuthenticatedUser(password, email, nickname)
+	u, err := m.getAuthenticatedUser(password, email, nickname)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return

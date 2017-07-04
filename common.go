@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func writeResponse(w http.ResponseWriter, r *http.Request, v interface{}) {
@@ -39,4 +42,19 @@ func writeErrorWithMessage(w http.ResponseWriter, r *http.Request, httpCode int,
 
 func writeError(w http.ResponseWriter, r *http.Request, httpCode int) {
 	w.WriteHeader(httpCode)
+}
+
+func getURLIDs(r *http.Request, keys ...string) ([]int64, error) {
+	vars := mux.Vars(r)
+	var ret []int64
+	var err error
+	for _, k := range keys {
+		var id int64
+		id, err = strconv.ParseInt(vars[k], 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, id)
+	}
+	return ret, nil
 }

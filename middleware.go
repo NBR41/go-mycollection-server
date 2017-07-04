@@ -17,28 +17,36 @@ func getToken(u *user) ([]byte, error) {
 	return jwt.Serialize(secretSalt)
 }
 
-func checkUserRight(f http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			jwt, err := jws.ParseJWTFromRequest(r)
-			if err != nil {
-				writeError(w, r, http.StatusUnauthorized)
-				return
-			}
+func checkUserRight(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		jwt, err := jws.ParseJWTFromRequest(r)
+		if err != nil {
+			writeError(w, r, http.StatusUnauthorized)
+			return
+		}
 
-			err = jwt.Validate(secretSalt, crypto.SigningMethodHS256)
-			if err != nil {
-				writeError(w, r, http.StatusUnauthorized)
-				return
-			}
+		err = jwt.Validate(secretSalt, crypto.SigningMethodHS256)
+		if err != nil {
+			writeError(w, r, http.StatusUnauthorized)
+			return
+		}
 
-			cl := jwt.Claims()
-			vars := mux.Vars(r)
-			if vars["user_id"] != cl.Get("user") && false == cl.Get("admin") {
-				writeError(w, r, http.StatusUnauthorized)
-				return
-			}
-			f.ServeHTTP(w, r)
-		},
-	)
+		cl := jwt.Claims()
+		vars := mux.Vars(r)
+		if vars[urlUserIDField] != cl.Get("user") && false == cl.Get("admin") {
+			writeError(w, r, http.StatusUnauthorized)
+			return
+		}
+		f.ServeHTTP(w, r)
+	}
+}
+
+func parseForm(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := r.ParseForm()
+		if err != nil {
+			writeError(w, r, http.StatusBadRequest)
+			return
+		}
+	}
 }
