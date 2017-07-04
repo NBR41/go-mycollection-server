@@ -4,14 +4,14 @@ import (
 	"net/http"
 )
 
-func listUsers(w http.ResponseWriter, r *http.Request) {
+func listBooks(w http.ResponseWriter, r *http.Request) {
 	m, err := NewModel(connString)
 	if err != nil {
 		writeError(w, r, http.StatusInternalServerError)
 		return
 	}
 
-	l, err := m.GetUserList()
+	l, err := m.GetBookList()
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return

@@ -16,17 +16,19 @@ const (
 	formPasswordField = "password"
 	formNicknameField = "nickname"
 
+	formBookNameField = "book_name"
+
 	urlUserIDField = "user_id"
 	urlBookIDField = "book_id"
 )
 
 func init() {
-	connString := os.Getenv("DB_CONN_STR")
+	connString = os.Getenv("DB_CONN_STR")
 	if connString == "" {
 		panic("no connexion string")
 	}
 }
 func main() {
-	r := NewRouter()
+	r := newRouter()
 	http.ListenAndServe(":1123", handlers.RecoveryHandler()(r))
 }

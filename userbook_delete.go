@@ -4,8 +4,8 @@ import (
 	"net/http"
 )
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
-	ids, err := getURLIDs(r, urlUserIDField)
+func deleteUserBook(w http.ResponseWriter, r *http.Request) {
+	ids, err := getURLIDs(r, urlUserIDField, urlBookIDField)
 	if err != nil {
 		writeError(w, r, http.StatusBadRequest)
 		return
@@ -18,7 +18,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = m.close() }()
 
-	err = m.DeleteUser(ids[0])
+	err = m.DeleteUserBook(ids[0], ids[1])
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return

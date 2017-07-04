@@ -17,24 +17,23 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m, err := newModel(connString)
+	m, err := NewModel(connString)
 	if err != nil {
 		writeError(w, r, http.StatusInternalServerError)
 		return
 	}
 	defer func() { _ = m.close() }()
 
-	err = m.updateUserNickname(ids[0], nickname)
+	err = m.UpdateUserNickname(ids[0], nickname)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
 	}
 
-	u, err := m.getUserByID(ids[0])
+	u, err := m.GetUserByID(ids[0])
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
 	}
-	u.initURL()
 	writeResponse(w, r, u)
 }

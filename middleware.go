@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func getToken(u *user) ([]byte, error) {
+func getToken(u *User) ([]byte, error) {
 	claims := jws.Claims{}
 	claims.SetIssuer("myinventory-server")
 	claims.Set("user", u.ID)

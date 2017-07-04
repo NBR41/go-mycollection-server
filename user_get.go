@@ -5,21 +5,25 @@ import (
 )
 
 func getUser(w http.ResponseWriter, r *http.Request) {
-	m, err := newModel(connString)
-	if err != nil {
-		writeError(w, r, http.StatusInternalServerError)
-		return
-	}
-
 	ids, err := getURLIDs(r, urlUserIDField)
 	if err != nil {
 		writeError(w, r, http.StatusBadRequest)
 		return
 	}
 
-	u, err := m.getUserByID(ids[0])
+	m, err := NewModel(connString)
+	if err != nil {
+		writeError(w, r, http.StatusInternalServerError)
+		return
+	}
+
+	u, err := m.GetUserByID(ids[0])
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
+		return
+	}
+	if u == nil {
+		writeError(w, r, http.StatusNotFound)
 		return
 	}
 	writeResponse(w, r, u)

@@ -19,14 +19,14 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m, err := newModel(connString)
+	m, err := NewModel(connString)
 	if err != nil {
 		writeError(w, r, http.StatusInternalServerError)
 		return
 	}
 	defer func() { _ = m.close() }()
 
-	u, err := m.getUserByEmailOrNickname(email, nickname)
+	u, err := m.GetUserByEmailOrNickname(email, nickname)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
@@ -37,11 +37,10 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err = m.insertUser(nickname, email, password)
+	u, err = m.InsertUser(nickname, email, password)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
 	}
-	u.initURL()
 	writeResponse(w, r, u)
 }

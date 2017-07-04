@@ -17,13 +17,13 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m, err := newModel(connString)
+	m, err := NewModel(connString)
 	if err != nil {
 		writeError(w, r, http.StatusInternalServerError)
 		return
 	}
 
-	u, err := m.getAuthenticatedUser(password, email, nickname)
+	u, err := m.GetAuthenticatedUser(password, email, nickname)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return

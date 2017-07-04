@@ -4,10 +4,10 @@ import (
 	"net/http"
 )
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
-	ids, err := getURLIDs(r, urlUserIDField)
-	if err != nil {
-		writeError(w, r, http.StatusBadRequest)
+func createBook(w http.ResponseWriter, r *http.Request) {
+	var name string
+	if name = r.PostForm.Get(formBookNameField); name == "" {
+		writeErrorWithMessage(w, r, http.StatusBadRequest, "invalid book name")
 		return
 	}
 
@@ -18,10 +18,10 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = m.close() }()
 
-	err = m.DeleteUser(ids[0])
+	b, err := m.InsertBook(name)
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
 	}
-	writeResponse(w, r, nil)
+	writeResponse(w, r, b)
 }
