@@ -1,0 +1,21 @@
+version: "2"
+services:
+  invmodel:
+    build:
+      context: ./model
+      args:
+        dbname: invdbdb
+        dbuser: invdbuser
+        dbpassword: invdbpassword
+    image: invmodel:latest
+  invws:
+    build:
+      context: ./ws
+    image: invws:latest
+    links:
+     - invmodel:mysql
+    ports:
+     - "8980:80"
+    environment:
+      - DB_CONN_STR=invdbuser:invdbpassword@tcp(mysql:3306)/invdbdb
+      - WS_SECRET_SALT="mysalt"
