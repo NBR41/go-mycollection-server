@@ -1,4 +1,4 @@
-FROM mariadb
+FROM mariadb:latest
 RUN echo "Europe/Paris" > /etc/timezone
 RUN dpkg-reconfigure -f noninteractive tzdata
 ADD init.sql /docker-entrypoint-initdb.d/
