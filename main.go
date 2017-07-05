@@ -8,10 +8,9 @@ import (
 )
 
 var connString string
+var secretSalt string
 
 const (
-	secretSalt = "secret salt"
-
 	formEmailField    = "email"
 	formPasswordField = "password"
 	formNicknameField = "nickname"
@@ -27,8 +26,14 @@ func init() {
 	if connString == "" {
 		panic("no connexion string")
 	}
+
+	secretSalt = os.Getenv("WS_SECRET_SALT")
+	if secretSalt == "" {
+		panic("no connexion secret salt")
+	}
 }
+
 func main() {
 	r := newRouter()
-	http.ListenAndServe(":1123", handlers.RecoveryHandler()(r))
+	http.ListenAndServe(":80", handlers.RecoveryHandler()(r))
 }
