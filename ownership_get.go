@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func createUserBook(w http.ResponseWriter, r *http.Request) {
+func getOwnership(w http.ResponseWriter, r *http.Request) {
 	ids, err := getURLIDs(r, urlUserIDField, urlBookIDField)
 	if err != nil {
 		writeError(w, r, http.StatusBadRequest)
@@ -18,9 +18,13 @@ func createUserBook(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = m.close() }()
 
-	ub, err := m.InsertUserBook(ids[0], ids[1])
+	ub, err := m.GetOwnership(ids[0], ids[1])
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
+		return
+	}
+	if ub == nil {
+		writeError(w, r, http.StatusNotFound)
 		return
 	}
 	writeResponse(w, r, ub)

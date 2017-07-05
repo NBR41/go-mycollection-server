@@ -42,11 +42,11 @@ var routes = []route{
 	{Name: "BookUpdate", Method: "PUT", Pattern: "/books/{bookidid:[0-9]+}", HandlerFunc: checkUserRight(parseForm(updateBook))},
 	{Name: "BookDelete", Method: "DELETE", Pattern: "/books/{bookidid:[0-9]+}", HandlerFunc: checkUserRight(deleteBook)},
 
-	// user books
-	{Name: "UserBookList", Method: "GET", Pattern: "/users/{userid:[0-9]+}/books", HandlerFunc: listUserBooks},
-	{Name: "UserBookGet", Method: "GET", Pattern: "/users/{userid:[0-9]+}/books/{bookid:[0-9]+}", HandlerFunc: getUserBook},
-	{Name: "UserBookCreate", Method: "POST", Pattern: "/users/{userid:[0-9]+}/books", HandlerFunc: checkUserRight(parseForm(createUserBook))},
-	{Name: "UserBookDelete", Method: "DELETE", Pattern: "/users/{userid:[0-9]+}/books/{bookid:[0-9]+}", HandlerFunc: checkUserRight(deleteUserBook)},
+	// ownerships
+	{Name: "OwnershipList", Method: "GET", Pattern: "/users/{userid:[0-9]+}/books", HandlerFunc: listOwnerships},
+	{Name: "OwnershipGet", Method: "GET", Pattern: "/users/{userid:[0-9]+}/books/{bookid:[0-9]+}", HandlerFunc: getOwnership},
+	{Name: "OwnershipCreate", Method: "POST", Pattern: "/users/{userid:[0-9]+}/books", HandlerFunc: checkUserRight(parseForm(createOwnership))},
+	{Name: "OwnershipDelete", Method: "DELETE", Pattern: "/users/{userid:[0-9]+}/books/{bookid:[0-9]+}", HandlerFunc: checkUserRight(deleteOwnership)},
 }
 
 func mock(arg http.ResponseWriter, arg2 *http.Request) {

@@ -6,12 +6,12 @@ import (
 
 // User struct for users
 type User struct {
-	ID          int64  `json:"id"`
-	Email       string `json:"email"`
-	Nickname    string `json:"nickname"`
-	URL         string `json:"url,omitempty"`
-	IsValidated bool
-	IsAdmin     bool
+	ID         int64  `json:"id"`
+	Email      string `json:"email"`
+	Nickname   string `json:"nickname"`
+	URL        string `json:"url,omitempty"`
+	IsVerified bool
+	IsAdmin    bool
 }
 
 func (u *User) initURL() {
@@ -29,14 +29,14 @@ func (b *Book) initURL() {
 	b.URL = fmt.Sprintf("/books/%d", b.ID)
 }
 
-// UserBook struct for user book association
-type UserBook struct {
+// Ownership struct for user book association
+type Ownership struct {
 	UserID int64  `json:"user_id"`
 	BookID int64  `json:"book_id"`
 	URL    string `json:"url,omitempty"`
 	Book   *Book  `json:"book,omitempty"`
 }
 
-func (u *UserBook) initURL() {
+func (u *Ownership) initURL() {
 	u.URL = fmt.Sprintf("/users/%d/books/%d", u.UserID, u.BookID)
 }

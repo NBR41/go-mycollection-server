@@ -34,7 +34,7 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !u.IsValidated {
+	if !u.IsVerified {
 		writeErrorWithMessage(w, r, http.StatusUnauthorized, "user not verified")
 		return
 	}

@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func deleteUserBook(w http.ResponseWriter, r *http.Request) {
+func deleteOwnership(w http.ResponseWriter, r *http.Request) {
 	ids, err := getURLIDs(r, urlUserIDField, urlBookIDField)
 	if err != nil {
 		writeError(w, r, http.StatusBadRequest)
@@ -18,7 +18,7 @@ func deleteUserBook(w http.ResponseWriter, r *http.Request) {
 	}
 	defer func() { _ = m.close() }()
 
-	err = m.DeleteUserBook(ids[0], ids[1])
+	err = m.DeleteOwnership(ids[0], ids[1])
 	if err != nil {
 		writeError(w, r, http.StatusServiceUnavailable)
 		return
